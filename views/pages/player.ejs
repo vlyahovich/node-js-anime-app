@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/header.ejs %>
+</head>
+
+<script>
+    window.data = <%- JSON.stringify(data) %>;
+</script>
+
+<body>
+    <% if (data.seasons && data.seasons.length) { %>
+        <h2>Seasons</h2>
+
+        <ul class="list-group">
+            <% for (var i = 0; i < data.seasons.length; i++) {%>
+            <li class="list-group-item">
+                <a href="/player?url=http://seasonvar.ru/<%= data.seasons[i].href %>"><%= data.seasons[i].title %></a>
+            </li>
+            <% } %>
+        </ul>
+    <% } %>
+
+    <% if (data.play) { %>
+        <video width="100%" controls>
+            <source src="<%= data.play %>">
+        </video>
+    <% } %>
+
+    <h2>Playlist</h2>
+
+    <ul class="list-group">
+        <% for (var j = 0; j < data.player.playlist.length; j++) { %>
+            <li class="list-group-item">
+                <a href="/player?url=<%= data.url %>&play=<%= data.player.playlist[j].file %>"><%= data.player.playlist[j].comment %></a>
+            </li>
+        <% } %>
+    </ul>
+</body>
+</html>

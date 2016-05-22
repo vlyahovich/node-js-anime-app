@@ -1,5 +1,10 @@
 var express = require('express');
 var app = express();
+var request = require('request');
+var Xray = require('x-ray');
+var x = Xray();
+
+var TARGET_HOST = 'http://seasonvar.ru/';
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -9,12 +14,84 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-app.get('/', function(request, response) {
-  response.render('pages/index');
+app.get('/', function (req, res) {
+    x(TARGET_HOST, '.alf-block', [{
+        letter: '.alf-letter span',
+        items: x('.betterT', [{
+            href: 'a@href',
+            title: 'a'
+        }])
+    }])(function (err, json) {
+        if (err) {
+            res.status(500).send('Error: ' + err);
+        } else {
+            res.render('pages/index', {
+                data: json
+            });
+        }
+    });
 });
 
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
+app.get('/player', function (req, res) {
+    var url = req.query.url,
+        play = req.query.play,
+        seasons = [],
+        requestList = function (err, response, body) {
+            var json = null;
+
+            if (err) {
+                res.status(500).send('Error: ' + err);
+            } else {
+                json = JSON.parse(body);
+
+                res.render('pages/player', {
+                    data: {
+                        player: json,
+                        seasons: seasons,
+                        url: url,
+                        play: play
+                    }
+                });
+            }
+        },
+        requestTargetUrl = function (err, response, body) {
+            var result = null;
+
+            if (err) {
+                res.status(500).send('Error: ' + err);
+            } else {
+                result = /pl0 = "(.*?)";\n?\r?.+if/g.exec(body);
+
+                if (result) {
+                    x(body, '.svtabr_wrap h2', [{
+                        href: 'a@href',
+                        title: 'a'
+                    }])(function (err, json) {
+                        if (err) {
+                            res.status(500).send('Error: ' + err);
+                        } else {
+                            seasons = json;
+
+                            request(TARGET_HOST + result[1], requestList);
+                        }
+                    });
+                }
+            }
+        };
+
+    if (url) {
+        request(url, {
+            headers: {
+                'Cookie': 'html5default=1;'
+            }
+        }, requestTargetUrl);
+    } else {
+        res.status(500).send('Error: query parameter "url" must be specified');
+    }
+});
+
+app.listen(app.get('port'), function () {
+    console.log('Node app is running on port', app.get('port'));
 });
 
 
