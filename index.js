@@ -49,7 +49,7 @@ app.get('/player', function (req, res) {
                         player: json,
                         seasons: seasons,
                         url: url,
-                        play: play
+                        play: '/video?url=' + play
                     }
                 });
             }
@@ -88,6 +88,12 @@ app.get('/player', function (req, res) {
     } else {
         res.status(500).send('Error: query parameter "url" must be specified');
     }
+});
+
+app.use('/video', function (req, res) {
+    var url = req.query.url;
+
+    req.pipe(request(url)).pipe(res);
 });
 
 app.listen(app.get('port'), function () {
