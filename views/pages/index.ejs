@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta property="og:title" content="«Покемон» в коллекциях пользователей Яндекса">
     <% include ../partials/header.ejs %>
 </head>
 
 <body>
-    <ul class="list-group">
-        <% for(var i = 0; i < data.length; i++) { %>
-            <% for(var j = 0; j < data[i].items.length; j++) { %>
-                <li class="list-group-item">
-                    <a href="/player?url=<%= data[i].items[j].href %>"><%= data[i].items[j].title %></a>
-                </li>
-            <% } %>
-        <% } %>
-    </ul>
 </body>
 </html>

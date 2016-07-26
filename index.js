@@ -15,6 +15,10 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function (req, res) {
+    res.render('pages/index');
+});
+
+app.get('/list', function (req, res) {
     x(TARGET_HOST, '.alf-block', [{
         letter: '.alf-letter span',
         items: x('.betterT', [{
@@ -25,16 +29,14 @@ app.get('/', function (req, res) {
         if (err) {
             res.status(500).send('Error: ' + err);
         } else {
-            res.render('pages/index', {
-                data: json
-            });
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(json));
         }
     });
 });
 
-app.get('/player', function (req, res) {
+app.get('/playlist', function (req, res) {
     var url = req.query.url,
-        play = req.query.play,
         seasons = [],
         requestList = function (err, response, body) {
             var json = null;
@@ -44,14 +46,11 @@ app.get('/player', function (req, res) {
             } else {
                 json = JSON.parse(body);
 
-                res.render('pages/player', {
-                    data: {
-                        player: json,
-                        seasons: seasons,
-                        url: url,
-                        play: '/video?url=' + play
-                    }
-                });
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({
+                    playlist: json,
+                    seasons: seasons
+                }));
             }
         },
         requestTargetUrl = function (err, response, body) {
